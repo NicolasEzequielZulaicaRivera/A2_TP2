@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "TDA/lista.h"
+#include "TDA/heap.h"
 
 
 typedef struct cosa{
@@ -26,18 +27,40 @@ void destruir_cosa(void* c){
     free(c);
 }
 
+int comparar_cosas(void* elemento1, void* elemento2){
+    if(!elemento1 || !elemento2)
+        return 0;
+
+    if(((cosa*)elemento1)->clave>((cosa*)elemento2)->clave)
+        return 10;
+    if(((cosa*)elemento1)->clave<((cosa*)elemento2)->clave)
+        return -10;
+    return 0;
+}
+
 int main(){
   printf("Hello World\n");
 
-  lista_t* lls = lista_crear( destruir_cosa );
+  heap_t* heap = heap_crear( comparar_cosas, destruir_cosa );
 
-  lista_insertar( lls, crear_cosa(0) );
-  lista_insertar( lls, crear_cosa(0) );
-  lista_insertar( lls, crear_cosa(0) );
-  lista_insertar( lls, crear_cosa(0) );
-  lista_insertar( lls, crear_cosa(0) );
+  heap_insertar( heap, crear_cosa(5) );
+  heap_insertar( heap, crear_cosa(10) );
+  heap_insertar( heap, crear_cosa(9) );
+  heap_insertar( heap, crear_cosa(2) );
+  heap_insertar( heap, crear_cosa(3) );
+  heap_insertar( heap, crear_cosa(4) );
+  heap_insertar( heap, crear_cosa(2) );
+  heap_insertar( heap, crear_cosa(5) );
+  heap_insertar( heap, crear_cosa(6) );
+  heap_insertar( heap, crear_cosa(11) );
 
-  lista_destruir( lls );
+  while( heap_raiz(heap) ){
+      cosa* pto = (cosa*) heap_raiz(heap);
+      printf("%i - ", pto->clave );
+      heap_borrar_raiz(heap);
+  }
+
+  heap_destruir(heap);
 
   return 0;
 }

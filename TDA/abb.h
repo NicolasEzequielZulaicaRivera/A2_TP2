@@ -10,8 +10,8 @@
 
 /*
  * Comparador de elementos. Recibe dos elementos del arbol y devuelve
- * 0 en caso de ser iguales, 1 si el primer elemento es mayor al
- * segundo o -1 si el primer elemento es menor al segundo.
+ * 0 en caso de ser iguales, n>0 si el primer elemento es mayor al
+ * segundo o n<0 si el primer elemento es menor al segundo.
  */
 typedef int (*abb_comparador)(void*, void*);
 
