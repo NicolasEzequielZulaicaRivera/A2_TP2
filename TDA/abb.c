@@ -1,8 +1,7 @@
 #include "abb.h"
-#include <stdio.h>
 
-const int EXITO =  0;
-const int FALLO = -1;
+static const int EXITO =  0;
+static const int FALLO = -1;
 
 
 abb_t* arbol_crear(abb_comparador comparador, abb_liberar_elemento destructor){

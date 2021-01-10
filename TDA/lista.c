@@ -1,11 +1,11 @@
 #include "lista.h"
 #include <stdlib.h>
 
-const int EXITO =  0;
-const int FALLO = -1;
+static const int EXITO =  0;
+static const int FALLO = -1;
 
 
-lista_t* lista_crear(){
+lista_t* lista_crear( lista_liberar_elemento destructor ){
 
   lista_t* lista = malloc( sizeof( lista_t ) );
   if( !lista ) return NULL;
@@ -13,6 +13,7 @@ lista_t* lista_crear(){
   lista->cantidad = 0;
   lista->nodo_inicio = NULL;
   lista->nodo_fin = NULL;
+  lista->destructor = destructor;
 
   return lista;
 }
@@ -111,6 +112,7 @@ int lista_borrar(lista_t* lista){
   if( lista->cantidad == 0 ) return FALLO;
 
   if( lista->cantidad == 1 ){
+      if(lista->destructor) lista->destructor( lista->nodo_inicio->elemento );
       free( lista->nodo_inicio );
       lista->nodo_inicio = lista->nodo_fin = NULL;
       lista->cantidad--;
@@ -120,6 +122,7 @@ int lista_borrar(lista_t* lista){
   nodo_t* anteultimo = nodo_en_posicion( lista, lista->cantidad-2 );
   if( anteultimo->siguiente != lista->nodo_fin ) return FALLO;
 
+  if(lista->destructor) lista->destructor( anteultimo->siguiente->elemento );
   free( anteultimo->siguiente );
   lista->nodo_fin = anteultimo;
   anteultimo->siguiente = NULL;
@@ -137,6 +140,7 @@ int lista_borrar_de_posicion(lista_t* lista, size_t posicion){
   if( posicion == 0 ){
     nodo_t* aux = lista->nodo_inicio;
     lista->nodo_inicio = lista->nodo_inicio->siguiente;
+    if(lista->destructor) lista->destructor( aux->elemento );
     free( aux );
     lista->cantidad--;
     return EXITO;
@@ -145,6 +149,7 @@ int lista_borrar_de_posicion(lista_t* lista, size_t posicion){
   nodo_t* nodo_anterior = nodo_en_posicion( lista , posicion-1 );
   nodo_t* nodo = nodo_anterior->siguiente;
   nodo_anterior->siguiente = nodo->siguiente;
+  if(lista->destructor) lista->destructor( nodo->elemento );
   free( nodo );
   lista->cantidad--;
 
@@ -214,6 +219,7 @@ void lista_destruir(lista_t* lista){
   while ( nodo_i ) {
     nodo_aux = nodo_i;
     nodo_i = nodo_i->siguiente;
+    if(lista->destructor) lista->destructor( nodo_aux->elemento );
     free( nodo_aux );
   }
 
