@@ -1,35 +1,55 @@
 #include <stdio.h>
 #include <string.h>
+#include "Utilidades/Global.h"
+#include "Juego/aventura_pokemon.h"
+
 
 // Menus
-void menu_inicio();
-void menu_gimnasio();
-void menu_batalla();
-void menu_victoria();
-void menu_derrota();
+int menu_error();
+int menu_inicio(juego_t* juego);
+int menu_gimnasio();
+int menu_batalla();
+int menu_victoria();
+int menu_derrota();
 
 int main(){
 
+  juego_t* juego = crear_juego();
+  if(!juego) return menu_error();
+
+
+  juego_destruir(juego);
   return 0;
 }
 
-void menu_inicio(){
+int menu_error(){
+  printf("\n\n [ HA HABIDO UN ERROR ] \n\n" );
+  string buffer;
+  scanf("%s",buffer);
+  return -1;
+}
+int menu_inicio(juego_t* juego){
   printf("\n MENU INICIO \n");
 
   printf("\n E - Cargar entrenador principal ");
   printf("\n A - Cargar un gimnasio ");
   printf("\n I - Comenzar partida ");
   printf("\n S - Simular partida ");
+  return 0;
 }
-void menu_gimnasio(){
+int menu_gimnasio(){
   printf("\n MENU GIMNASIO");
+  return 0;
 }
-void menu_batalla(){
+int menu_batalla(){
   printf("\n MENU BATALLA");
+  return 0;
 }
-void menu_victoria(){
+int menu_victoria(){
   printf("\n MENU VICTORIA");
+  return 0;
 }
-void menu_derrota(){
+int menu_derrota(){
   printf("\n MENU DERROTA");
+  return 0;
 }

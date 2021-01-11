@@ -66,7 +66,7 @@ int heap_borrar_raiz(heap_t* heap ){
 
 
 void heap_destruir( heap_t* heap ){
-
+  if(!heap) return;
   for( size_t i = 0 ; i<heap->tamanio ; i++ )
     heap->destructor( heap->heap[i] );
 
