@@ -17,6 +17,9 @@ int main(){
   juego_t* juego = crear_juego();
   if(!juego) return menu_error();
 
+  int modo = menu_inicio(juego);
+
+  
 
   juego_destruir(juego);
   return 0;
@@ -29,12 +32,33 @@ int menu_error(){
   return -1;
 }
 int menu_inicio(juego_t* juego){
-  printf("\n MENU INICIO \n");
+  bool entrenador = false;
+  char entrada;
+  while(true){
+    system("clear");
+    printf("\n AVENTURA POKEMON \n");
 
-  printf("\n E - Cargar entrenador principal ");
-  printf("\n A - Cargar un gimnasio ");
-  printf("\n I - Comenzar partida ");
-  printf("\n S - Simular partida ");
+    printf("\n E - Cargar entrenador principal ");
+    printf("\n A - Cargar un gimnasio ");
+    if(entrenador){
+      printf("\n I - Comenzar partida ");
+      printf("\n S - Simular partida ");
+    }
+    printf("\n ");
+    scanf("%c",&entrada);
+    switch (entrada) {
+      case 'e':
+      case 'E': entrenador = true;
+        break;
+      case 'a':
+      case 'A':
+        break;
+      case 'i':
+      case 'I': if(entrenador) return 1;
+      case 's':
+      case 'S': if(entrenador) return 0;
+    }
+  }
   return 0;
 }
 int menu_gimnasio(){
