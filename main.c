@@ -3,6 +3,8 @@
 #include "Utilidades/Global.h"
 #include "Juego/aventura_pokemon.h"
 
+// Funciones de Juego
+void cargar_gimnasios(juego_t* juego);
 
 // Menus
 int menu_error();
@@ -19,10 +21,10 @@ int main(){
 
   int modo = menu_inicio(juego);
 
-  
+
 
   juego_destruir(juego);
-  return 0;
+  return modo;
 }
 
 int menu_error(){

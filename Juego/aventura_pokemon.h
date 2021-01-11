@@ -5,8 +5,8 @@
 #include "../TDA/lista.h"
 #include "../TDA/heap.h"
 
-const string RUTA_ENTRENADORES = "../Entrenadores/";
-const string RUTA_GIMNASIOS = "../Gimnasios/";
+//const string RUTA_ENTRENADORES = "../Entrenadores/";
+//const string RUTA_GIMNASIOS = "../Gimnasios/";
 
 typedef struct pokemon {
   string nombre;
