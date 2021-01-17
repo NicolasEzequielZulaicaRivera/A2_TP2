@@ -16,3 +16,11 @@ etiqueta_t buscar_etiqueta( string etiqueta,
 
    	return ETIQUETA_INVALIDA;
 }
+
+void tocar_para_continuar(){
+
+    printf("\n\t presione para continuar \n" );
+    char c;
+    fflush(stdout);
+    scanf("%c%c",&c,&c);
+}

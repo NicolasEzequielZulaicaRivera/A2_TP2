@@ -5,14 +5,11 @@
 #include "../TDA/lista.h"
 #include "../TDA/heap.h"
 
-//const string RUTA_ENTRENADORES = "../Entrenadores/";
-//const string RUTA_GIMNASIOS = "../Gimnasios/";
-
 typedef struct pokemon {
   string nombre;
-  size_t velocidad;
-  size_t ataque;
-  size_t defensa;
+  int velocidad;
+  int ataque;
+  int defensa;
 } pokemon_t;
 
 typedef struct entrenador {
@@ -45,12 +42,12 @@ juego_t* crear_juego();
 // Libera la memoria reservada por un objeto de Juego de Aventura Pokemon
 void juego_destruir( juego_t* juego );
 
-// carga un Entrenador a un objeto de Juego de Aventura Pokemon
-// a partir de un archivo ( con referencia a RUTA_ENTRENADORES )
-void cargar_entrenador( juego_t* juego, string archivo );
+// carga un Jugador a un objeto de Juego de Aventura Pokemon
+// a partir de un archivo
+void cargar_jugador( jugador_t* jugador, string ruta );
 
 // carga un Gimnasio a un objeto de Juego de Aventura Pokemon
-// a partir de un archivo ( con referencia a RUTA_GIMNASIOS )
+// a partir de un archivo
 void cargar_gimnasio( juego_t* juego, string archivo );
 
 

@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stddef.h>
+#include <stdio.h>
 
 typedef char string [64];
 
@@ -20,5 +21,7 @@ typedef struct etiqueta {
 // Devuelve una etiqueta (obj) segun su etiqueta (string)
 etiqueta_t buscar_etiqueta( string etiqueta,
 		const etiqueta_t* vector_etiquetas, size_t cantidad_etiquetas );
+
+void tocar_para_continuar();
 
 #endif /* __UTL_GLOBAL__ */
