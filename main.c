@@ -98,6 +98,10 @@ int menu_inicio_opcion(juego_t* juego, char entrada , bool* entrenador){
     case 'I': if(entrenador) return PARTIDA_NORMAL;
     case 's':
     case 'S': if(entrenador) return PARTIDA_SIMULADA;
+    case 'z':
+    case 'Z':
+      cargar_jugador( &(juego->jugador), "Entrenadores/E1.txt");
+      return PARTIDA_NORMAL;
   };
   return INVALIDO;
 }
@@ -136,6 +140,9 @@ int menu_gimnasio_opcion(juego_t* juego, char entrada){
       break;
     case 'b':
     case 'B':
+      return PARTIDA_NORMAL;
+    case 'z':
+    case 'Z':
       heap_borrar_raiz(juego->gimnasios);
       return PARTIDA_NORMAL;
   };
