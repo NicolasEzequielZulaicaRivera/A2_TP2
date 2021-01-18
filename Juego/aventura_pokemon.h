@@ -27,7 +27,7 @@ typedef struct gimnasio {
   string nombre;
   size_t dificultad;
   size_t indice_funcion_batalla;
-  lista_t* entrenadores;// pila
+  lista_t* entrenadores;
 } gimnasio_t;
 
 typedef struct juego {
@@ -48,7 +48,7 @@ void cargar_jugador( jugador_t* jugador, string ruta );
 
 // carga un Gimnasio a un objeto de Juego de Aventura Pokemon
 // a partir de un archivo
-void cargar_gimnasio( juego_t* juego, string archivo );
+void cargar_gimnasio( juego_t* juego, string ruta );
 
 
 #endif /* __AVENTURA_POKEMON__ */

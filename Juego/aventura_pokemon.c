@@ -1,10 +1,14 @@
 #include <stdio.h>
+#include <unistd.h>
 #include "aventura_pokemon.h"
 #include "../Utilidades/Global.h"
 
 static const size_t MAX_POKEMON_BATALLA = 6;
 
+static const string FORMATO_ETIQUETAS = "%[^;];%[^\n]\n";
 static const string FORMATO_POKEMON_JUGADOR = "%[^;];%i;%i;%i\n";
+static const string FORMATO_POKEMON_GIMNASIO = "%[^;]; %i; %i; %i\n";
+static const string FORMATO_DATOS_GIMNASIO = "%[^;]; %lu; %lu\n";
 
 void cargar_nombre_jugador( void* jugador, void* lectura );
 void cargar_pokemon_jugador( void* jugador, void* lectura );
@@ -13,6 +17,19 @@ void cargar_pokemon_jugador( void* jugador, void* lectura );
 const etiqueta_t ETIQUETAS_JUGADOR [CANT_ETIQUETAS_JUGADOR] ={
   {.etiqueta="E",.funcion=cargar_nombre_jugador},
   {.etiqueta="P",.funcion=cargar_pokemon_jugador}
+};
+
+void cargar_datos_gimnasio( void* gimnasio, void* lectura );
+void cargar_lider_gimnasio( void* gimnasio, void* lectura );
+void cargar_entrenador_gimnasio( void* gimnasio, void* lectura );
+void cargar_pokemon_gimnasio( void* gimnasio, void* lectura );
+
+#define CANT_ETIQUETAS_GIMNASIO 4
+const etiqueta_t ETIQUETAS_GIMNASIO [CANT_ETIQUETAS_GIMNASIO] ={
+  {.etiqueta="G",.funcion=cargar_datos_gimnasio},
+  {.etiqueta="L",.funcion=cargar_lider_gimnasio},
+  {.etiqueta="E",.funcion=cargar_entrenador_gimnasio},
+  {.etiqueta="P",.funcion=cargar_pokemon_gimnasio}
 };
 
 // Compara dos gimnasios segun su dificultad
@@ -56,7 +73,7 @@ void juego_destruir( juego_t* juego ){
 }
 
 void cargar_jugador( jugador_t* jugador, string ruta ){
-  if(!jugador) return;
+  if(!jugador || access( ruta, F_OK ) ) return;
   FILE* archivo = fopen(ruta,"r");
   if(!archivo) return;
 
@@ -64,7 +81,7 @@ void cargar_jugador( jugador_t* jugador, string ruta ){
   string etiqueta, lectura;
 
   while(
-  	fscanf( archivo, "%[^;];%[^\n]\n", etiqueta, lectura  ) != EOF
+  	fscanf( archivo, FORMATO_ETIQUETAS, etiqueta, lectura  ) != EOF
   ){
 
 	  	etiqueta_obj = buscar_etiqueta( etiqueta,
@@ -76,18 +93,30 @@ void cargar_jugador( jugador_t* jugador, string ruta ){
 }
 
 
-void cargar_gimnasio( juego_t* juego, string archivo ){
+void cargar_gimnasio( juego_t* juego, string ruta ){
+
+  if( !juego || access( ruta, F_OK ) )return;
 
   gimnasio_t* gimnasio = malloc(sizeof(gimnasio_t));
   if(!gimnasio)return;
 
   gimnasio->entrenadores = lista_crear( destructor_entrenador );
-  if(!gimnasio->entrenadores){
-    free(gimnasio);
-    return;
-  }
+  if(!gimnasio->entrenadores){ free(gimnasio); return;}
 
-  return;
+  FILE* archivo = fopen(ruta,"r");
+  if(!archivo){ destructor_gimnasio(gimnasio); return;};
+  etiqueta_t etiqueta_obj;
+  string etiqueta, lectura;
+  while(fscanf( archivo, FORMATO_ETIQUETAS, etiqueta, lectura  ) != EOF){
+
+	  	etiqueta_obj = buscar_etiqueta( etiqueta,
+	  		ETIQUETAS_GIMNASIO, CANT_ETIQUETAS_GIMNASIO );
+
+	  	etiqueta_obj.funcion(gimnasio,lectura);
+  }
+  fclose(archivo);
+
+  heap_insertar( juego->gimnasios, gimnasio );
 }
 
 int comparador_gimnasio( void* g1, void* g2 ){
@@ -128,4 +157,40 @@ void cargar_pokemon_jugador( void* jugador, void* lectura ){
 
   if( ((jugador_t*)jugador)->pokemon_batalla->cantidad < MAX_POKEMON_BATALLA )
     lista_insertar( ((jugador_t*)jugador)->pokemon_batalla, pokemon );
+}
+
+void cargar_datos_gimnasio( void* gimnasio, void* lectura ){
+
+  if(!gimnasio || !lectura) return;
+
+  sscanf(lectura,FORMATO_DATOS_GIMNASIO, ((gimnasio_t*)gimnasio)->nombre,
+    &((gimnasio_t*)gimnasio)->dificultad, &((gimnasio_t*)gimnasio)->indice_funcion_batalla);
+}
+void cargar_lider_gimnasio( void* gimnasio, void* lectura ){
+  cargar_entrenador_gimnasio( gimnasio, lectura );
+}
+void cargar_entrenador_gimnasio( void* gimnasio, void* lectura ){
+  if(!gimnasio || !lectura) return;
+  entrenador_t* entrenador = malloc(sizeof(entrenador_t));
+  if(!entrenador) return;
+  entrenador->pokemon_batalla = lista_crear(destructor_pokemon);
+  if( !entrenador->pokemon_batalla ){ free(entrenador); return; }
+  sscanf(lectura,"%[^\n]\n",entrenador->nombre);
+
+  lista_apilar( ((gimnasio_t*)gimnasio)->entrenadores, entrenador );
+
+}
+void cargar_pokemon_gimnasio( void* gimnasio, void* lectura ){
+  if(!gimnasio || !lectura || !lista_tope(((gimnasio_t*)gimnasio)->entrenadores) ) return;
+  entrenador_t* entrenador = (entrenador_t*)lista_tope(((gimnasio_t*)gimnasio)->entrenadores);
+
+  pokemon_t* pokemon = malloc(sizeof(pokemon_t));
+  if(!pokemon) return;
+
+  sscanf( lectura, FORMATO_POKEMON_GIMNASIO,
+    pokemon->nombre,&(pokemon->velocidad),&(pokemon->ataque),&(pokemon->defensa));
+
+  if( entrenador->pokemon_batalla->cantidad < MAX_POKEMON_BATALLA )
+    lista_insertar( entrenador->pokemon_batalla, pokemon );
+
 }
