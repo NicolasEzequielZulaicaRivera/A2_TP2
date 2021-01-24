@@ -7,6 +7,7 @@ const string RUTA_ENTRENADORES = "Entrenadores/";
 const string RUTA_GIMNASIOS = "Gimnasios/";
 
 static const int INVALIDO = -1;
+static const int VALIDO = 0;
 static const int PARTIDA_NORMAL = 1;
 static const int PARTIDA_SIMULADA = 2;
 
@@ -31,6 +32,7 @@ int menu_gimnasio_opcion(juego_t* juego, char entrada);
 int menu_batalla();
 int menu_victoria();
 int menu_derrota();
+int cambiar_pokemon_batalla(jugador_t* jugador);
 
 int main(){
 
@@ -137,6 +139,7 @@ int menu_gimnasio_opcion(juego_t* juego, char entrada){
       break;
     case 'c':
     case 'C':
+      cambiar_pokemon_batalla( &(juego->jugador) );
       break;
     case 'b':
     case 'B':
@@ -160,6 +163,18 @@ int menu_derrota(){
   printf("\n MENU DERROTA");
   return 0;
 }
+int cambiar_pokemon_batalla(jugador_t* jugador){
+  mostrar_jugador(jugador);
+  size_t saliente, entrante;
+  printf("\n Pokemon saliente :");
+  scanf("%lu",&saliente );
+  printf("\n Pokemon entrante :");
+  scanf("%lu",&entrante );
+
+  jugador_cambiar_pokemon(jugador, saliente-1, entrante-1);
+
+  return VALIDO;
+}
 
 void cargar_gimnasios(juego_t* juego){
   cargar_gimnasio(juego,"Gimnasios/G1.txt");
@@ -170,9 +185,10 @@ void cargar_gimnasios(juego_t* juego){
 }
 
 void jugar_partida_normal(juego_t* juego){
-
+  int opcion;
   while (juego->gimnasios->tamanio > 0) {
-    menu_gimnasio( juego );
+    opcion = menu_gimnasio( juego );
+    if( opcion == -478 )return;// unused variable
   }
 
 }
@@ -183,6 +199,8 @@ void jugar_partida_simulada(juego_t* juego){
 bool mostar_pokemon(void* pokemon, void* contexto){
   if(!pokemon) return false;
   if(contexto) printf("%i]\t",(*(int*)contexto)++ );
+  //if( ((pokemon_t*)pokemon)->en_uso){}
+  
   printf(" %s", ((pokemon_t*)pokemon)->nombre);
 
   for( size_t i = strlen( ((pokemon_t*)pokemon)->nombre ); i < espaciado_mostrar_pokemon; i++ )
@@ -193,12 +211,13 @@ bool mostar_pokemon(void* pokemon, void* contexto){
   return true;
 }
 void mostrar_jugador(jugador_t* jugador){
+  size_t i=1;
   if(!jugador || !jugador->pokemon_obetenidos->cantidad ) return;
   printf("\n[[ %s  ]] \n", jugador->nombre );
   printf("\n[[ Pokemon de Batalla  ]] \n" );
-  lista_con_cada_elemento(jugador->pokemon_batalla, mostar_pokemon, NULL);
+  lista_con_cada_elemento(jugador->pokemon_batalla, mostar_pokemon, &i);
   printf("\n[[ Pokemon Obtenidos  ]] (%lu) \n",jugador->pokemon_obetenidos->cantidad );
-  size_t i=1;
+  i=1;
   lista_con_cada_elemento(jugador->pokemon_obetenidos, mostar_pokemon, &i);
   tocar_para_continuar();
 }

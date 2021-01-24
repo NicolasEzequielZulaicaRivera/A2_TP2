@@ -119,6 +119,24 @@ void cargar_gimnasio( juego_t* juego, string ruta ){
   heap_insertar( juego->gimnasios, gimnasio );
 }
 
+void jugador_cambiar_pokemon(jugador_t* jugador, size_t saliente, size_t entrante){
+
+  if(!jugador) return;
+
+  if( saliente > jugador->pokemon_batalla->cantidad || saliente > MAX_POKEMON_BATALLA ||
+      entrante > jugador->pokemon_obetenidos->cantidad ) return;
+
+  pokemon_t* pokemon = (pokemon_t*)lista_elemento_en_posicion(jugador->pokemon_obetenidos,entrante);
+
+  if( pokemon->en_uso ) return;
+  pokemon->en_uso=true;
+
+  ((pokemon_t*)lista_elemento_en_posicion(jugador->pokemon_batalla,saliente))->en_uso = false;
+  lista_borrar_de_posicion(jugador->pokemon_batalla,saliente);
+  lista_insertar_en_posicion(jugador->pokemon_batalla,pokemon,saliente);
+
+}
+
 int comparador_gimnasio( void* g1, void* g2 ){
 
   if(!g1 || !g2) return 0;
@@ -155,8 +173,13 @@ void cargar_pokemon_jugador( void* jugador, void* lectura ){
 
   lista_insertar( ((jugador_t*)jugador)->pokemon_obetenidos, pokemon );
 
-  if( ((jugador_t*)jugador)->pokemon_batalla->cantidad < MAX_POKEMON_BATALLA )
-    lista_insertar( ((jugador_t*)jugador)->pokemon_batalla, pokemon );
+  pokemon->velocidad_bonus = pokemon->ataque_bonus = pokemon->defensa_bonus = 0;
+  pokemon->en_uso = false;
+
+  if( ((jugador_t*)jugador)->pokemon_batalla->cantidad >= MAX_POKEMON_BATALLA ) return;
+
+  pokemon->en_uso = true;
+  lista_insertar( ((jugador_t*)jugador)->pokemon_batalla, pokemon );
 }
 
 void cargar_datos_gimnasio( void* gimnasio, void* lectura ){
@@ -190,7 +213,12 @@ void cargar_pokemon_gimnasio( void* gimnasio, void* lectura ){
   sscanf( lectura, FORMATO_POKEMON_GIMNASIO,
     pokemon->nombre,&(pokemon->velocidad),&(pokemon->ataque),&(pokemon->defensa));
 
-  if( entrenador->pokemon_batalla->cantidad < MAX_POKEMON_BATALLA )
-    lista_insertar( entrenador->pokemon_batalla, pokemon );
+  pokemon->velocidad_bonus = pokemon->ataque_bonus = pokemon->defensa_bonus = 0;
+  pokemon->en_uso = false;
+
+  if( entrenador->pokemon_batalla->cantidad >= MAX_POKEMON_BATALLA ) return;
+
+  pokemon->en_uso = true;
+  lista_insertar( entrenador->pokemon_batalla, pokemon );
 
 }

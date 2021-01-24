@@ -10,6 +10,13 @@ typedef struct pokemon {
   int velocidad;
   int ataque;
   int defensa;
+
+  int velocidad_bonus;
+  int ataque_bonus;
+  int defensa_bonus;
+
+  bool en_uso;
+
 } pokemon_t;
 
 typedef struct entrenador {
@@ -49,6 +56,9 @@ void cargar_jugador( jugador_t* jugador, string ruta );
 // carga un Gimnasio a un objeto de Juego de Aventura Pokemon
 // a partir de un archivo
 void cargar_gimnasio( juego_t* juego, string ruta );
+
+// cambia un pokemon de batalla( saliente ) por uno de los obtenidos( entrante )
+void jugador_cambiar_pokemon(jugador_t* jugador, size_t saliente, size_t entrante);
 
 
 #endif /* __AVENTURA_POKEMON__ */
