@@ -60,5 +60,4 @@ void cargar_gimnasio( juego_t* juego, string ruta );
 // cambia un pokemon de batalla( saliente ) por uno de los obtenidos( entrante )
 void jugador_cambiar_pokemon(jugador_t* jugador, size_t saliente, size_t entrante);
 
-
 #endif /* __AVENTURA_POKEMON__ */
