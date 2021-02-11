@@ -97,11 +97,7 @@ void cargar_gimnasio( juego_t* juego, string ruta ){
 
   if( !juego || access( ruta, F_OK ) )return;
 
-  gimnasio_t* gimnasio = malloc(sizeof(gimnasio_t));
-  if(!gimnasio)return;
-
-  gimnasio->entrenadores = lista_crear( destructor_entrenador );
-  if(!gimnasio->entrenadores){ free(gimnasio); return;}
+  gimnasio_t* gimnasio = NULL;
 
   FILE* archivo = fopen(ruta,"r");
   if(!archivo){ destructor_gimnasio(gimnasio); return;};
@@ -109,14 +105,22 @@ void cargar_gimnasio( juego_t* juego, string ruta ){
   string etiqueta, lectura;
   while(fscanf( archivo, FORMATO_ETIQUETAS, etiqueta, lectura  ) != EOF){
 
-	  	etiqueta_obj = buscar_etiqueta( etiqueta,
-	  		ETIQUETAS_GIMNASIO, CANT_ETIQUETAS_GIMNASIO );
+    if( !strcmp( etiqueta, ETIQUETAS_GIMNASIO[0].etiqueta ) ){
+      if( gimnasio ) heap_insertar( juego->gimnasios, gimnasio );
 
-	  	etiqueta_obj.funcion(gimnasio,lectura);
+      gimnasio = malloc(sizeof(gimnasio_t));
+      if(!gimnasio){fclose(archivo);return;};
+      gimnasio->entrenadores = lista_crear( destructor_entrenador );
+      if(!gimnasio->entrenadores){ fclose(archivo);free(gimnasio); return;}
+    }
+
+	  etiqueta_obj = buscar_etiqueta( etiqueta,
+	  	ETIQUETAS_GIMNASIO, CANT_ETIQUETAS_GIMNASIO );
+
+	  etiqueta_obj.funcion(gimnasio,lectura);
   }
   fclose(archivo);
-
-  heap_insertar( juego->gimnasios, gimnasio );
+  if( gimnasio ) heap_insertar( juego->gimnasios, gimnasio );
 }
 
 void jugador_cambiar_pokemon(jugador_t* jugador, size_t saliente, size_t entrante){

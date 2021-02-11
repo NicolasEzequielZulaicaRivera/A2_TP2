@@ -178,7 +178,6 @@ int cambiar_pokemon_batalla(jugador_t* jugador){
 
 void cargar_gimnasios(juego_t* juego){
   cargar_gimnasio(juego,"Gimnasios/G1.txt");
-  cargar_gimnasio(juego,"Gimnasios/G2.txt");
   cargar_gimnasio(juego,"Gimnasios/G3.txt");
   cargar_gimnasio(juego,"Gimnasios/G4.txt");
   cargar_gimnasio(juego,"Gimnasios/G5.txt");
@@ -200,7 +199,7 @@ bool mostar_pokemon(void* pokemon, void* contexto){
   if(!pokemon) return false;
   if(contexto) printf("%i]\t",(*(int*)contexto)++ );
   //if( ((pokemon_t*)pokemon)->en_uso){}
-  
+
   printf(" %s", ((pokemon_t*)pokemon)->nombre);
 
   for( size_t i = strlen( ((pokemon_t*)pokemon)->nombre ); i < espaciado_mostrar_pokemon; i++ )

@@ -1,3 +1,11 @@
 G;Gimnasio de Manu; 5; 1
 L;Manuel Camejo
 P;Metapod; 5; 5; 50
+
+G;Gimnasio de La Ruta; 10; 2
+L;Hugo Moyano
+P;Magneton; 60; 50; 50
+P;Lairon; 30; 20; 60
+E;Camionero Claudio
+P;Weedle; 10; 30; 20
+P;Kakuna; 10; 20; 30
