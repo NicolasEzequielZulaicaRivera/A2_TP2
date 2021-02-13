@@ -14,6 +14,7 @@ static const int PARTIDA_SIMULADA = 2;
 
 static const int BATALLA_VICTORIA = 3;
 static const int BATALLA_DERROTA = 4;
+static const int BATALLA_SIGUIENTE = 5;
 
 static const int OPCION_SALIR = -3;
 static const int ERROR = -4;
@@ -22,7 +23,7 @@ int (*funciones_batalla[CANTIDAD_FUNCIONES_BATALLA])(void*,void*) =
   {funcion_batalla_1,funcion_batalla_2,funcion_batalla_3,funcion_batalla_4,funcion_batalla_5};
 
 static const size_t espaciado_mostrar_pokemon = 15;
-bool mostar_pokemon(void* pokemon, void* contexto);
+bool mostrar_pokemon(void* pokemon, void* contexto);
 void mostrar_jugador(jugador_t* jugador);
 void mostrar_gimnasio(gimnasio_t* gimnasio);
 void mostrar_entrenador(entrenador_t* entrenador);
@@ -32,6 +33,7 @@ void mostrar_entrenador(entrenador_t* entrenador);
 void cargar_gimnasios(juego_t* juego);
 void jugar_partida_normal(juego_t* juego);
 void jugar_partida_simulada(juego_t* juego);
+bool pedir_pokemon_prestado(juego_t* juego);
 
 // Menus
 int menu_error();
@@ -139,6 +141,7 @@ int menu_gimnasio(juego_t* juego){
   return opcion;
 }
 int menu_gimnasio_opcion(juego_t* juego, char entrada){
+  int retorno;
   switch (entrada) {
     case 'e':
     case 'E':
@@ -154,7 +157,9 @@ int menu_gimnasio_opcion(juego_t* juego, char entrada){
       break;
     case 'b':
     case 'B':
-      return menu_batalla( juego );
+      retorno = BATALLA_SIGUIENTE;
+      while(retorno==BATALLA_SIGUIENTE) retorno = menu_batalla( juego );
+      return retorno;
       break;
     case 'x':
     case 'X':
@@ -181,16 +186,18 @@ int menu_batalla( juego_t* juego ){
     p_oponente=lista_iterador_elemento_actual(oponente);
 
     printf("[ %s ]\n", juego->jugador.nombre );
-    mostar_pokemon(p_jugador, NULL);
+    mostrar_pokemon(p_jugador, NULL);
     printf("\n --- VS --- \n\n");
     printf("[ %s ]\n", ( (entrenador_t*)lista_tope( ( (gimnasio_t*)heap_raiz(juego->gimnasios) )->entrenadores ) )->nombre );
-    mostar_pokemon(p_oponente, NULL);
+    mostrar_pokemon(p_oponente, NULL);
 
     if( funciones_batalla[indice_batalla-1]( p_jugador, p_oponente ) == GANO_PRIMERO ){
       printf("Gana el jugador\n");
+      pokemon_mejorar(p_jugador,1,1,1);
       lista_iterador_avanzar(oponente);
     }else{
       printf("Gana el oponente\n");
+      pokemon_mejorar(p_oponente,1,1,1);/// esto
       lista_iterador_avanzar(jugador);
     }
     tocar_para_continuar();
@@ -200,15 +207,26 @@ int menu_batalla( juego_t* juego ){
   if( victoria && ((gimnasio_t*)heap_raiz(juego->gimnasios))->entrenadores->cantidad == 1 ) return menu_victoria(juego);
   if( !victoria ) return menu_derrota(juego);
   lista_desapilar(((gimnasio_t*)heap_raiz(juego->gimnasios))->entrenadores);
-  return BATALLA_VICTORIA;
+  return BATALLA_SIGUIENTE;
 }
 int menu_victoria(juego_t* juego){
-  system("clear");
-  printf("\n MENU VICTORIA \n");
-  printf("\n T - Pedir pokemon prestado ");
-  printf("\n C - Cambiar pokemon de batalla ");
-  printf("\n N - Proximo gimnasio ");
-  printf("\n ");
+  char opcion = ' ';
+  bool pedir_prestado = true;
+
+  while( opcion!='n' && opcion!='N' ){
+
+    system("clear");
+    printf("\n MENU VICTORIA \n");
+    if( pedir_prestado )printf("\n T - Pedir pokemon prestado ");
+    printf("\n C - Cambiar pokemon de batalla ");
+    printf("\n N - Proximo gimnasio ");
+    printf("\n ");
+    scanf("%c",&opcion);
+
+    if( opcion=='t' || opcion=='T' ) pedir_prestado = !pedir_pokemon_prestado(juego);
+    if( opcion=='c' || opcion=='C' ) cambiar_pokemon_batalla( &(juego->jugador) );
+    if( opcion=='x' || opcion=='X' ) return OPCION_SALIR;
+  }
 
   tocar_para_continuar();
 
@@ -216,12 +234,20 @@ int menu_victoria(juego_t* juego){
   return BATALLA_VICTORIA;
 }
 int menu_derrota(juego_t* juego){
-  system("clear");
-  printf("\n MENU DERROTA \n");
-  printf("\n C - Cambiar pokemon de batalla ");
-  printf("\n R - Reintentar ");
-  printf("\n F - Finalizar partida ");
-  printf("\n ");
+  char opcion = ' ';
+  while( opcion!='r' && opcion!='R' ){
+
+    system("clear");
+    printf("\n MENU DERROTA \n");
+    printf("\n C - Cambiar pokemon de batalla ");
+    printf("\n R - Reintentar ");
+    printf("\n F - Finalizar partida ");
+    printf("\n ");
+    scanf("%c",&opcion);
+
+    if( opcion=='f' || opcion=='F' ) return OPCION_SALIR;
+    if( opcion=='c' || opcion=='C' ) cambiar_pokemon_batalla( &(juego->jugador) );
+  }
 
   tocar_para_continuar();
   return BATALLA_DERROTA;
@@ -241,9 +267,6 @@ int cambiar_pokemon_batalla(jugador_t* jugador){
 
 void cargar_gimnasios(juego_t* juego){
   cargar_gimnasio(juego,"Gimnasios/G1.txt");
-  cargar_gimnasio(juego,"Gimnasios/G3.txt");
-  cargar_gimnasio(juego,"Gimnasios/G4.txt");
-  cargar_gimnasio(juego,"Gimnasios/G5.txt");
 }
 
 void jugar_partida_normal(juego_t* juego){
@@ -252,13 +275,15 @@ void jugar_partida_normal(juego_t* juego){
     opcion = menu_gimnasio( juego );
     if(opcion==OPCION_SALIR)return;
   }
-
+  system("clear");
+  printf("\n\n >> Has finalizado la aventura pokemon <<\n\n");
+  tocar_para_continuar();
 }
 void jugar_partida_simulada(juego_t* juego){
 
 }
 
-bool mostar_pokemon(void* pokemon, void* contexto){
+bool mostrar_pokemon(void* pokemon, void* contexto){
   if(!pokemon) return false;
   if(contexto) printf("%i]\t",(*(int*)contexto)++ );
   //if( ((pokemon_t*)pokemon)->en_uso){}
@@ -268,8 +293,11 @@ bool mostar_pokemon(void* pokemon, void* contexto){
   for( size_t i = strlen( ((pokemon_t*)pokemon)->nombre ); i < espaciado_mostrar_pokemon; i++ )
     printf(" ");
 
-  printf("[SPD: %i ]\t[ATK: %i ]\t[DEF: %i ]\n",((pokemon_t*)pokemon)->velocidad,
-    ((pokemon_t*)pokemon)->ataque, ((pokemon_t*)pokemon)->defensa );
+  printf("[SPD: %i ]\t[ATK: %i ]\t[DEF: %i ]\n",
+    ((pokemon_t*)pokemon)->velocidad + ((pokemon_t*)pokemon)->velocidad_bonus,
+    ((pokemon_t*)pokemon)->ataque + ((pokemon_t*)pokemon)->ataque_bonus, 
+    ((pokemon_t*)pokemon)->defensa + ((pokemon_t*)pokemon)->defensa_bonus
+  );
   return true;
 }
 void mostrar_jugador(jugador_t* jugador){
@@ -277,17 +305,18 @@ void mostrar_jugador(jugador_t* jugador){
   if(!jugador || !jugador->pokemon_obetenidos->cantidad ) return;
   printf("\n[[ %s  ]] \n", jugador->nombre );
   printf("\n[[ Pokemon de Batalla  ]] \n" );
-  lista_con_cada_elemento(jugador->pokemon_batalla, mostar_pokemon, &i);
+  lista_con_cada_elemento(jugador->pokemon_batalla, mostrar_pokemon, &i);
   printf("\n[[ Pokemon Obtenidos  ]] (%lu) \n",jugador->pokemon_obetenidos->cantidad );
   i=1;
-  lista_con_cada_elemento(jugador->pokemon_obetenidos, mostar_pokemon, &i);
+  lista_con_cada_elemento(jugador->pokemon_obetenidos, mostrar_pokemon, &i);
   tocar_para_continuar();
 }
 void mostrar_entrenador( entrenador_t* entrenador ){
   if(!entrenador ) return;
+  size_t i=1;
   printf("\n[[ %s  ]] \n", entrenador->nombre );
   printf("\n[[ Pokemon de Batalla  ]] \n" );
-  lista_con_cada_elemento(entrenador->pokemon_batalla, mostar_pokemon, NULL);
+  lista_con_cada_elemento(entrenador->pokemon_batalla, mostrar_pokemon, &i);
 }
 void mostrar_gimnasio(gimnasio_t* gimnasio){
   if(!gimnasio) return;
@@ -302,4 +331,13 @@ void mostrar_gimnasio(gimnasio_t* gimnasio){
     printf("\n\n[ No quedan batallas ]");
 
   tocar_para_continuar();
+}
+bool pedir_pokemon_prestado(juego_t* juego){
+  system("clear");
+  mostrar_entrenador(
+    lista_primero(((gimnasio_t*)heap_raiz(juego->gimnasios))->entrenadores)
+  );
+  size_t pokemon;
+  scanf("%lu", &pokemon );
+  return juego_tomar_pokemon( juego, pokemon-1 );
 }

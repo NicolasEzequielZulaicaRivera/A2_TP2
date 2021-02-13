@@ -61,7 +61,7 @@ int funcion_batalla_4(void* pkm_1, void* pkm_2){
      ( ((pokemon_t*)pkm_2)->ataque   + ((pokemon_t*)pkm_2)->ataque_bonus ),
      ( ((pokemon_t*)pkm_2)->defensa  + ((pokemon_t*)pkm_2)->defensa_bonus) };
 
-  int gana2 = (poder2[0]>poder1[0])?1:-1 + (poder2[1]>poder1[1])?1:-1 +(poder2[2]>poder1[2])?1:-1;
+  int gana2 = ((poder2[0]>poder1[0])?1:-1) + ((poder2[1]>poder1[1])?1:-1) + ((poder2[2]>poder1[2])?1:-1);
   if( gana2>0 ) return GANO_SEGUNDO;
   return GANO_PRIMERO;
 }
@@ -76,7 +76,7 @@ int funcion_batalla_5(void* pkm_1, void* pkm_2){
      ( ((pokemon_t*)pkm_2)->ataque   + ((pokemon_t*)pkm_2)->ataque_bonus ),
      ( ((pokemon_t*)pkm_2)->defensa  + ((pokemon_t*)pkm_2)->defensa_bonus) };
 
-  int gana2 = (poder2[2]>poder1[0])?1:-1 + (poder2[0]>poder1[1])?1:-1 +(poder2[1]>poder1[2])?1:-1;
+  int gana2 = ((poder2[2]>poder1[0])?1:-1) + ((poder2[0]>poder1[1])?1:-1) + ((poder2[1]>poder1[2])?1:-1);
   if( gana2>0 ) return GANO_SEGUNDO;
   return GANO_PRIMERO;
 }

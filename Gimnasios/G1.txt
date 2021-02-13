@@ -9,3 +9,27 @@ P;Lairon; 30; 20; 60
 E;Camionero Claudio
 P;Weedle; 10; 30; 20
 P;Kakuna; 10; 20; 30
+
+G;Gimnasio de Ciudad Celeste; 15; 3
+L;Misty
+P;Staryu; 50; 40; 50
+P;Starmie; 90; 50; 60
+E;Dominguera Diana
+P;Goldeen; 40; 50; 30
+E;Nadador Luis
+P;Horsea; 45; 30; 20
+P;Shellder; 30; 20; 45
+
+G;Gimnasio de la Ciudad de las Nubes; 20; 4
+L;Baron Administrador
+P;Salamence; 30; 80; 60
+P;Sygiliph; 10; 60; 60
+P;Togekiss; 70; 50; 40
+E;Juana cazanubes
+P;Jumpluff; 60; 30; 30
+P;Altaria; 45; 45; 45
+E;Ana cazanubes
+P;Altaria; 45; 45; 45
+P;Togetic; 50;30;40
+E;Saltarin Federico
+P;Butterfree; 40;20;10

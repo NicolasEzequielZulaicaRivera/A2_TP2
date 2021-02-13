@@ -4,6 +4,7 @@
 #include "../Utilidades/Global.h"
 
 static const size_t MAX_POKEMON_BATALLA = 6;
+static const int MAX_BONUS = 63;
 
 static const string FORMATO_ETIQUETAS = "%[^;];%[^\n]\n";
 static const string FORMATO_POKEMON_JUGADOR = "%[^;];%i;%i;%i\n";
@@ -42,6 +43,9 @@ int comparador_gimnasio( void* g1, void* g2 );
 void destructor_gimnasio( void* g );
 void destructor_entrenador( void* e );
 void destructor_pokemon( void* p );
+
+// crea una copia de un pokemon valido y la devuelve, en caso de fallo devuelve NULL
+pokemon_t* copia_pokemon(pokemon_t* pokemon );
 
 juego_t* crear_juego(){
 
@@ -127,7 +131,7 @@ void jugador_cambiar_pokemon(jugador_t* jugador, size_t saliente, size_t entrant
 
   if(!jugador) return;
 
-  if( saliente > jugador->pokemon_batalla->cantidad || saliente > MAX_POKEMON_BATALLA ||
+  if( saliente > jugador->pokemon_batalla->cantidad || saliente >= MAX_POKEMON_BATALLA ||
       entrante > jugador->pokemon_obetenidos->cantidad ) return;
 
   pokemon_t* pokemon = (pokemon_t*)lista_elemento_en_posicion(jugador->pokemon_obetenidos,entrante);
@@ -139,6 +143,33 @@ void jugador_cambiar_pokemon(jugador_t* jugador, size_t saliente, size_t entrant
   lista_borrar_de_posicion(jugador->pokemon_batalla,saliente);
   lista_insertar_en_posicion(jugador->pokemon_batalla,pokemon,saliente);
 
+}
+
+bool juego_tomar_pokemon(juego_t* juego, size_t pos_pokemon){
+  pokemon_t* pokemon = lista_elemento_en_posicion(
+    ( (entrenador_t*)lista_tope(( (gimnasio_t*)heap_raiz(juego->gimnasios) )->entrenadores) )->pokemon_batalla,
+    pos_pokemon
+  );
+  pokemon_t* copia = copia_pokemon(pokemon);
+  if(!copia)return false;
+  copia->en_uso=false;
+  lista_insertar( juego->jugador.pokemon_obetenidos, copia );
+  if( juego->jugador.pokemon_batalla->cantidad >= MAX_POKEMON_BATALLA )return true;
+  copia->en_uso=true;
+  lista_insertar( juego->jugador.pokemon_batalla, copia );
+
+  return true;
+}
+
+void pokemon_mejorar( pokemon_t* pokemon, int velocidad, int ataque, int defensa ){
+  if(!pokemon)return;
+  pokemon->velocidad_bonus += velocidad;
+  pokemon->ataque_bonus += ataque;
+  pokemon->defensa_bonus += defensa;
+
+  if( pokemon->velocidad_bonus > MAX_BONUS ) pokemon->velocidad_bonus = MAX_BONUS;
+  if( pokemon->ataque_bonus > MAX_BONUS ) pokemon->ataque_bonus = MAX_BONUS;
+  if( pokemon->defensa_bonus > MAX_BONUS ) pokemon->defensa_bonus = MAX_BONUS;
 }
 
 int comparador_gimnasio( void* g1, void* g2 ){
@@ -225,4 +256,20 @@ void cargar_pokemon_gimnasio( void* gimnasio, void* lectura ){
   pokemon->en_uso = true;
   lista_insertar( entrenador->pokemon_batalla, pokemon );
 
+}
+pokemon_t* copia_pokemon(pokemon_t* pokemon ){
+  if(!pokemon) return NULL;
+  pokemon_t* copia = malloc(sizeof(pokemon_t));
+  if(!copia) return NULL;
+
+  strcpy( copia->nombre, pokemon->nombre );
+  copia->velocidad = pokemon->velocidad;
+  copia->ataque = pokemon->ataque;
+  copia->defensa = pokemon->defensa;
+  copia->velocidad_bonus = pokemon->velocidad_bonus;
+  copia->ataque_bonus = pokemon->ataque_bonus;
+  copia->defensa_bonus = pokemon->defensa_bonus;
+  copia->en_uso = pokemon->en_uso;
+
+  return copia;
 }

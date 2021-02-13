@@ -60,4 +60,11 @@ void cargar_gimnasio( juego_t* juego, string ruta );
 // cambia un pokemon de batalla( saliente ) por uno de los obtenidos( entrante )
 void jugador_cambiar_pokemon(jugador_t* jugador, size_t saliente, size_t entrante);
 
+// el jugador toma un pokemon del primer entrenador en el gimnasio raiz
+// devuelve true si se realiza y false en caso contrario
+bool juego_tomar_pokemon(juego_t* juego, size_t pos_pokemon);
+
+// aumenta los bonus del pokemon, manteniendolos menor al maximo
+void pokemon_mejorar( pokemon_t* pokemon, int velocidad, int ataque, int defensa );
+
 #endif /* __AVENTURA_POKEMON__ */
