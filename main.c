@@ -19,9 +19,6 @@ static const int BATALLA_SIGUIENTE = 5;
 static const int OPCION_SALIR = -3;
 static const int ERROR = -4;
 
-int (*funciones_batalla[CANTIDAD_FUNCIONES_BATALLA])(void*,void*) =
-  {funcion_batalla_1,funcion_batalla_2,funcion_batalla_3,funcion_batalla_4,funcion_batalla_5};
-
 static const size_t espaciado_mostrar_pokemon = 15;
 bool mostrar_pokemon(void* pokemon, void* contexto);
 void mostrar_jugador(jugador_t* jugador);
@@ -295,7 +292,7 @@ bool mostrar_pokemon(void* pokemon, void* contexto){
 
   printf("[SPD: %i ]\t[ATK: %i ]\t[DEF: %i ]\n",
     ((pokemon_t*)pokemon)->velocidad + ((pokemon_t*)pokemon)->velocidad_bonus,
-    ((pokemon_t*)pokemon)->ataque + ((pokemon_t*)pokemon)->ataque_bonus, 
+    ((pokemon_t*)pokemon)->ataque + ((pokemon_t*)pokemon)->ataque_bonus,
     ((pokemon_t*)pokemon)->defensa + ((pokemon_t*)pokemon)->defensa_bonus
   );
   return true;

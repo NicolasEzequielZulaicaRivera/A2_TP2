@@ -1,6 +1,9 @@
 #include "batallas.h"
 #include "aventura_pokemon.h"
 
+int (*funciones_batalla[CANTIDAD_FUNCIONES_BATALLA])(void*,void*) =
+  {funcion_batalla_1,funcion_batalla_2,funcion_batalla_3,funcion_batalla_4,funcion_batalla_5};
+
 int maximo( int* num, size_t tope ){
   int max = num[0];
   for(size_t i=1;i<tope;i++)

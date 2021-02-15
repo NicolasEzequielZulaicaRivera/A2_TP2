@@ -26,7 +26,6 @@ int funcion_batalla_4(void* pkm_1, void* pkm_2);
 int funcion_batalla_5(void* pkm_1, void* pkm_2);
 
 
-/*int (*funciones_batalla[CANTIDAD_FUNCIONES_BATALLA])(void*,void*) =
-  {funcion_batalla_1,funcion_batalla_2,funcion_batalla_3,funcion_batalla_4,funcion_batalla_5};*/
+extern int (*funciones_batalla[CANTIDAD_FUNCIONES_BATALLA])(void*,void*);
 
 #endif /* __BATALLAS_H__ */
