@@ -197,7 +197,9 @@ int menu_batalla( juego_t* juego ){
       pokemon_mejorar(p_oponente,1,1,1);/// esto
       lista_iterador_avanzar(jugador);
     }
-    tocar_para_continuar();
+    printf("\n N: Proximo combate \n");
+    char c = ' ';
+    while( c!='n' && c!='N' ) scanf("%c",&c );
   }
   bool victoria = !lista_iterador_tiene_siguiente(oponente);
   lista_iterador_destruir(jugador);lista_iterador_destruir(oponente);
@@ -283,7 +285,6 @@ void jugar_partida_simulada(juego_t* juego){
 bool mostrar_pokemon(void* pokemon, void* contexto){
   if(!pokemon) return false;
   if(contexto) printf("%i]\t",(*(int*)contexto)++ );
-  //if( ((pokemon_t*)pokemon)->en_uso){}
 
   printf(" %s", ((pokemon_t*)pokemon)->nombre);
 
