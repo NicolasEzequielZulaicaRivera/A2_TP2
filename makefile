@@ -15,4 +15,4 @@ zip:
 	zip A2_TP2.zip *.c */*.c *.h */*.h *.pdf *.md makefile
 
 check: pokemon
-	valgrind --leak-check=full --track-origins=yes --show-reachable=yes ./pokemon
+	valgrind --leak-check=full --track-origins=yes --show-reachable=yes -s ./pokemon
