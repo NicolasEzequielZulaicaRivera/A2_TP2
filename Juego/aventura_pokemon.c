@@ -223,7 +223,14 @@ void cargar_datos_gimnasio( void* gimnasio, void* lectura ){
     &((gimnasio_t*)gimnasio)->dificultad, &((gimnasio_t*)gimnasio)->indice_funcion_batalla);
 }
 void cargar_lider_gimnasio( void* gimnasio, void* lectura ){
-  cargar_entrenador_gimnasio( gimnasio, lectura );
+  if(!gimnasio || !lectura) return;
+  entrenador_t* entrenador = malloc(sizeof(entrenador_t));
+  if(!entrenador) return;
+  entrenador->pokemon_batalla = lista_crear(destructor_pokemon);
+  if( !entrenador->pokemon_batalla ){ free(entrenador); return; }
+  sscanf(lectura,"%[^\n]\n",entrenador->nombre);
+
+  lista_insertar( ((gimnasio_t*)gimnasio)->entrenadores, entrenador );
 }
 void cargar_entrenador_gimnasio( void* gimnasio, void* lectura ){
   if(!gimnasio || !lectura) return;

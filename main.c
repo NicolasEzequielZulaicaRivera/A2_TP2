@@ -20,30 +20,58 @@ static const int OPCION_SALIR = -3;
 static const int ERROR = -4;
 
 static const size_t espaciado_mostrar_pokemon = 15;
+
+// muestra la info de un pokemon_t, devolviendo si es posible
 bool mostrar_pokemon(void* pokemon, void* contexto);
+// muestra la informacion de un jugador_t
 void mostrar_jugador(jugador_t* jugador);
+// muestra la informacion de un gimnasio_t
 void mostrar_gimnasio(gimnasio_t* gimnasio);
+// muestra la informacion de un entrenador_t
 void mostrar_entrenador(entrenador_t* entrenador);
 
 
 // Funciones de Juego
+
+// carga los gimnasios predeterminados al heap
 void cargar_gimnasios(juego_t* juego);
+// comienza una partida normal
 void jugar_partida_normal(juego_t* juego);
+// comienza una partida simulada
 void jugar_partida_simulada(juego_t* juego);
+// el jugador pide un pokemon del primer entrenador en el gimnasio raiz
+// devuelve true si se realiza y false en caso contrario
 bool pedir_pokemon_prestado(juego_t* juego);
 
 // Menus
+
+// Es llamada cuando ha habido un error.
+// Se debe finalizar la ejecucion de manera ordenada luego de que se llame
 int menu_error();
+// Muestra el menu de inicio
 int menu_inicio(juego_t* juego);
+// Procesa la opcion elegida en el menu de inicio
 int menu_inicio_opcion(juego_t* juego, char entrada, bool* entrenador);
+// Muestra el menu de gimnasio
 int menu_gimnasio(juego_t* juego);
+// Procesa la opcion elegida en el menu de gimnasio
 int menu_gimnasio_opcion(juego_t* juego, char entrada);
+// Muestra el menu de batalla
 int menu_batalla(juego_t* juego);
+// Muestra el menu de victoria
 int menu_victoria(juego_t* juego);
+// Muestra el menu de derrota
 int menu_derrota(juego_t* juego);
+// Muestra el menu de cambio de pokemones de batalla
+// Solo se puede cambiar aquellos que no estan en uso
 int cambiar_pokemon_batalla(jugador_t* jugador);
+// Muestra el menu de gimnasio en una partida simulada
 int menu_gimnasio_simulado(juego_t* juego);
+// Muestra el menu de batalla en una partida simulada
 int menu_batalla_simulado(juego_t* juego);
+// Realiza y Muestra la batalla entre pokemones
+void batalla_pokemon( juego_t* juego, lista_iterador_t* jugador, lista_iterador_t* oponente, bool simular );
+
 
 int main(){
 
@@ -81,6 +109,7 @@ int menu_inicio(juego_t* juego){
       printf("\n I - Comenzar partida ");
       printf("\n S - Simular partida ");
     }
+    printf("\n Z - Simular partida de prueba ");
     printf("\n ");
     scanf("%c",&entrada);
     opcion = menu_inicio_opcion(juego,entrada,&entrenador);
@@ -125,12 +154,15 @@ int menu_gimnasio(juego_t* juego){
   int opcion = INVALIDO;
   while( ((gimnasio_t*)heap_raiz( juego->gimnasios ))->entrenadores->cantidad > 0 ){
     system("clear");
-    printf("\n AVENTURA POKEMON \n");
+    printf("\n======================================================================\n");
+    printf("\n [ %s ] \n", ((gimnasio_t*)heap_raiz( juego->gimnasios ))->nombre );
+    printf("\n======================================================================\n");
 
     printf("\n E - Informacion de entrenador principal ");
     printf("\n G - Informacion de gimnasio ");
     printf("\n C - Cambiar pokemon de batalla ");
     printf("\n B - Comenzar proxima batalla ");
+    printf("\n F - Finalizar partida ");
     printf("\n ");
     scanf("%c",&entrada);
     opcion = menu_gimnasio_opcion(juego,entrada);
@@ -160,12 +192,42 @@ int menu_gimnasio_opcion(juego_t* juego, char entrada){
       while(retorno==BATALLA_SIGUIENTE) retorno = menu_batalla( juego );
       return retorno;
       break;
-    case 'x':
-    case 'X':
+    case 'f':
+    case 'F':
       return OPCION_SALIR;
   };
   return INVALIDO;
 }
+
+void batalla_pokemon( juego_t* juego, lista_iterador_t* jugador, lista_iterador_t* oponente, bool simular ){
+  size_t indice_batalla = ( (gimnasio_t*)heap_raiz(juego->gimnasios) )->indice_funcion_batalla;
+  pokemon_t* p_jugador=lista_iterador_elemento_actual(jugador);
+  pokemon_t* p_oponente=lista_iterador_elemento_actual(oponente);
+
+
+  printf("[ %s ]\n", juego->jugador.nombre );
+  mostrar_pokemon(p_jugador, NULL);
+  printf("\n --- VS --- \n\n");
+  printf("[ %s ]\n", ( (entrenador_t*)lista_tope( ( (gimnasio_t*)heap_raiz(juego->gimnasios) )->entrenadores ) )->nombre );
+  mostrar_pokemon(p_oponente, NULL);
+
+  if( funciones_batalla[indice_batalla-1]( p_jugador, p_oponente ) == GANO_PRIMERO ){
+    printf("Gana el jugador\n");
+    pokemon_mejorar(p_jugador,1,1,1);
+    lista_iterador_avanzar(oponente);
+  }else{
+    printf("Gana el oponente\n");
+    //pokemon_mejorar(p_oponente,1,1,1);
+    lista_iterador_avanzar(jugador);
+  }
+  if(!simular){
+    printf("\n N: Proximo combate \n");
+    char c = ' ';
+    while( c!='n' && c!='N' ) scanf("%c",&c );
+  }
+  printf("----------------------------------------------------------------\n");
+}
+
 int menu_batalla( juego_t* juego ){
   system("clear");
   printf("\n MENU BATALLA \n\n");
@@ -178,31 +240,10 @@ int menu_batalla( juego_t* juego ){
     lista_iterador_destruir(jugador);lista_iterador_destruir(oponente);
     return ERROR;
   }
-  size_t indice_batalla = ( (gimnasio_t*)heap_raiz(juego->gimnasios) )->indice_funcion_batalla;
-  pokemon_t *p_jugador=NULL, *p_oponente=NULL;
-  while ( lista_iterador_tiene_siguiente(jugador) && lista_iterador_tiene_siguiente(oponente) ) {
-    p_jugador=lista_iterador_elemento_actual(jugador);
-    p_oponente=lista_iterador_elemento_actual(oponente);
 
-    printf("[ %s ]\n", juego->jugador.nombre );
-    mostrar_pokemon(p_jugador, NULL);
-    printf("\n --- VS --- \n\n");
-    printf("[ %s ]\n", ( (entrenador_t*)lista_tope( ( (gimnasio_t*)heap_raiz(juego->gimnasios) )->entrenadores ) )->nombre );
-    mostrar_pokemon(p_oponente, NULL);
+  while ( lista_iterador_tiene_siguiente(jugador) && lista_iterador_tiene_siguiente(oponente) )
+    batalla_pokemon( juego, jugador, oponente, false );
 
-    if( funciones_batalla[indice_batalla-1]( p_jugador, p_oponente ) == GANO_PRIMERO ){
-      printf("Gana el jugador\n");
-      pokemon_mejorar(p_jugador,1,1,1);
-      lista_iterador_avanzar(oponente);
-    }else{
-      printf("Gana el oponente\n");
-      //pokemon_mejorar(p_oponente,1,1,1);
-      lista_iterador_avanzar(jugador);
-    }
-    printf("\n N: Proximo combate \n");
-    char c = ' ';
-    while( c!='n' && c!='N' ) scanf("%c",&c );
-  }
   bool victoria = !lista_iterador_tiene_siguiente(oponente);
   lista_iterador_destruir(jugador);lista_iterador_destruir(oponente);
   if( victoria && ((gimnasio_t*)heap_raiz(juego->gimnasios))->entrenadores->cantidad == 1 ) return menu_victoria(juego);
@@ -222,12 +263,13 @@ int menu_victoria(juego_t* juego){
     if( pedir_prestado )printf("\n T - Pedir pokemon prestado ");
     printf("\n C - Cambiar pokemon de batalla ");
     printf("\n N - Proximo gimnasio ");
+    printf("\n F - Finalizar partida ");
     printf("\n ");
     scanf("%c",&opcion);
 
     if( opcion=='t' || opcion=='T' ) pedir_prestado = !pedir_pokemon_prestado(juego);
     if( opcion=='c' || opcion=='C' ) cambiar_pokemon_batalla( &(juego->jugador) );
-    if( opcion=='x' || opcion=='X' ) return OPCION_SALIR;
+    if( opcion=='f' || opcion=='F' ) return OPCION_SALIR;
   }
 
   tocar_para_continuar();
@@ -297,7 +339,9 @@ void jugar_partida_simulada(juego_t* juego){
 
 int menu_gimnasio_simulado(juego_t* juego){
   int opcion;
+  printf("\n======================================================================\n");
   printf("\n [ %s ] \n", ((gimnasio_t*)heap_raiz( juego->gimnasios ))->nombre );
+  printf("\n======================================================================\n");
   while( ((gimnasio_t*)heap_raiz( juego->gimnasios ))->entrenadores->cantidad > 0 ){
     opcion = menu_batalla_simulado(juego);
     if( opcion == BATALLA_DERROTA ) return BATALLA_DERROTA;
@@ -315,29 +359,8 @@ int menu_batalla_simulado( juego_t* juego ){
     lista_iterador_destruir(jugador);lista_iterador_destruir(oponente);
     return ERROR;
   }
-  size_t indice_batalla = ( (gimnasio_t*)heap_raiz(juego->gimnasios) )->indice_funcion_batalla;
-  pokemon_t *p_jugador=NULL, *p_oponente=NULL;
-  while ( lista_iterador_tiene_siguiente(jugador) && lista_iterador_tiene_siguiente(oponente) ) {
-    p_jugador=lista_iterador_elemento_actual(jugador);
-    p_oponente=lista_iterador_elemento_actual(oponente);
-
-    printf("[ %s ]\n", juego->jugador.nombre );
-    mostrar_pokemon(p_jugador, NULL);
-    printf("\n --- VS --- \n\n");
-    printf("[ %s ]\n", ( (entrenador_t*)lista_tope( ( (gimnasio_t*)heap_raiz(juego->gimnasios) )->entrenadores ) )->nombre );
-    mostrar_pokemon(p_oponente, NULL);
-
-    if( funciones_batalla[indice_batalla-1]( p_jugador, p_oponente ) == GANO_PRIMERO ){
-      printf("Gana el jugador\n");
-      pokemon_mejorar(p_jugador,1,1,1);
-      lista_iterador_avanzar(oponente);
-    }else{
-      printf("Gana el oponente\n");
-      // pokemon_mejorar(p_oponente,1,1,1);
-      lista_iterador_avanzar(jugador);
-    }
-    printf("----------------------------------------------------------------\n");
-  }
+  while ( lista_iterador_tiene_siguiente(jugador) && lista_iterador_tiene_siguiente(oponente) )
+    batalla_pokemon( juego, jugador, oponente , true);
   bool victoria = !lista_iterador_tiene_siguiente(oponente);
   lista_iterador_destruir(jugador);lista_iterador_destruir(oponente);
   if( victoria && ((gimnasio_t*)heap_raiz(juego->gimnasios))->entrenadores->cantidad == 1 )printf("\n\n >> Gimnasio superado <<\n\n");;
