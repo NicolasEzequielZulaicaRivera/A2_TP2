@@ -113,7 +113,7 @@ size_t posicion_derecha( size_t n ){
 }
 size_t posicion_padre( size_t n ){
   if(!n)return 0;
-  return ( !(n+1)%2 )? (n+1)/2-1 : n/2-1;
+  return (n-1)/2;
 }
 
 void intercambiar( heap_t* heap, size_t n, size_t m ){

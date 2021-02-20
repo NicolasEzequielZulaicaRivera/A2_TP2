@@ -196,7 +196,7 @@ int menu_batalla( juego_t* juego ){
       lista_iterador_avanzar(oponente);
     }else{
       printf("Gana el oponente\n");
-      pokemon_mejorar(p_oponente,1,1,1);/// esto
+      //pokemon_mejorar(p_oponente,1,1,1);
       lista_iterador_avanzar(jugador);
     }
     printf("\n N: Proximo combate \n");
@@ -208,7 +208,8 @@ int menu_batalla( juego_t* juego ){
   if( victoria && ((gimnasio_t*)heap_raiz(juego->gimnasios))->entrenadores->cantidad == 1 ) return menu_victoria(juego);
   if( !victoria ) return menu_derrota(juego);
   lista_desapilar(((gimnasio_t*)heap_raiz(juego->gimnasios))->entrenadores);
-  return BATALLA_SIGUIENTE;
+  //return BATALLA_SIGUIENTE; // pasa al siguiente entrenador sin ir al menu de gimnasio
+  return BATALLA_VICTORIA;
 }
 int menu_victoria(juego_t* juego){
   char opcion = ' ';
@@ -332,11 +333,10 @@ int menu_batalla_simulado( juego_t* juego ){
       lista_iterador_avanzar(oponente);
     }else{
       printf("Gana el oponente\n");
-      pokemon_mejorar(p_oponente,1,1,1);/// esto
+      // pokemon_mejorar(p_oponente,1,1,1);
       lista_iterador_avanzar(jugador);
     }
     printf("----------------------------------------------------------------\n");
-    //tocar_para_continuar();
   }
   bool victoria = !lista_iterador_tiene_siguiente(oponente);
   lista_iterador_destruir(jugador);lista_iterador_destruir(oponente);

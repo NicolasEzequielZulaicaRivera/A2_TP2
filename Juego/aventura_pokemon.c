@@ -108,10 +108,8 @@ void cargar_gimnasio( juego_t* juego, string ruta ){
   etiqueta_t etiqueta_obj;
   string etiqueta, lectura;
   while(fscanf( archivo, FORMATO_ETIQUETAS, etiqueta, lectura  ) != EOF){
-
     if( !strcmp( etiqueta, ETIQUETAS_GIMNASIO[0].etiqueta ) ){
       if( gimnasio ) heap_insertar( juego->gimnasios, gimnasio );
-
       gimnasio = malloc(sizeof(gimnasio_t));
       if(!gimnasio){fclose(archivo);return;};
       gimnasio->entrenadores = lista_crear( destructor_entrenador );
